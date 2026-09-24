@@ -1,0 +1,7 @@
+sim/*.vcd
+sim/*_sim
+*.log
+*.jou
+*.wlf
+*.vvp
+
