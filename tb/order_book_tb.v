@@ -48,23 +48,36 @@ module order_book_tb;
     price    = 0;
     quantity = 0;
 
+    // Reset
     #20;
-
     rst = 0;
 
-    // Send BUY order: 100 x 50
+    // --------------------------------
+    // BUY 100 x 50
+    // --------------------------------
     valid    = 1;
     side     = 0;
     price    = 100;
     quantity = 50;
 
     #10;
-
     valid = 0;
 
-    #30;
+    // --------------------------------
+    // SELL 105 x 30
+    // --------------------------------
+    #10;
+    valid    = 1;
+    side     = 1;
+    price    = 105;
+    quantity = 30;
+
+    #10;
+    valid = 0;
+
+    #20;
 
     $finish;
 
-    end
+end
 endmodule

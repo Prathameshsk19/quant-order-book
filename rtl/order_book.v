@@ -24,7 +24,9 @@ always @(posedge clk) begin
             if (side == 0) begin
                 best_bid <= price;
             end
-
+            else begin
+                best_ask <= price;
+            end
         end
 
     end
