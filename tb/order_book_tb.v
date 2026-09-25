@@ -42,20 +42,29 @@ module order_book_tb;
     // Test
     initial begin
 
-        rst      = 1;
-        valid    = 0;
-        side     = 0;
-        price    = 0;
-        quantity = 0;
+    rst      = 1;
+    valid    = 0;
+    side     = 0;
+    price    = 0;
+    quantity = 0;
 
-        #20;
+    #20;
 
-        rst = 0;
+    rst = 0;
 
-        #20;
+    // Send BUY order: 100 x 50
+    valid    = 1;
+    side     = 0;
+    price    = 100;
+    quantity = 50;
 
-        $finish;
+    #10;
+
+    valid = 0;
+
+    #30;
+
+    $finish;
 
     end
-
 endmodule

@@ -18,6 +18,14 @@ always @(posedge clk) begin
             best_ask <= 0;
             spread   <= 0;
         end
+        else if (valid) begin
+
+            // BUY order
+            if (side == 0) begin
+                best_bid <= price;
+            end
+
+        end
 
     end
 
