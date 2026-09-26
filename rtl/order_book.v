@@ -20,15 +20,26 @@ always @(posedge clk) begin
         end
         else if (valid) begin
 
-            // BUY order
-            if (side == 0) begin
+    // BUY order
+        if (side == 0) begin
+
+            if (price > best_bid) begin
                 best_bid <= price;
             end
-            else begin
+
+        end
+
+    // SELL order
+        else begin
+
+            if (best_ask == 0 || price < best_ask) begin
                 best_ask <= price;
             end
+
         end
 
     end
+
+end
 
 endmodule
