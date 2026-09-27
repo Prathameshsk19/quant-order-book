@@ -56,9 +56,12 @@ module order_book_tb;
     #20;
     rst = 0;
 
+
     // ========================================
+    // BUY LEVELS
+    // ========================================
+
     // BUY 100 x 50
-    // ========================================
     valid    = 1;
     side     = 0;
     price    = 100;
@@ -67,23 +70,8 @@ module order_book_tb;
     #10;
     valid = 0;
 
-    // ========================================
-    // BUY 100 x 20
-    // Same price -> quantity should become 70
-    // ========================================
-    #10;
-    valid    = 1;
-    side     = 0;
-    price    = 100;
-    quantity = 20;
 
-    #10;
-    valid = 0;
-
-    // ========================================
     // BUY 105 x 30
-    // Better price -> quantity becomes 30
-    // ========================================
     #10;
     valid    = 1;
     side     = 0;
@@ -93,9 +81,35 @@ module order_book_tb;
     #10;
     valid = 0;
 
+
+    // BUY 102 x 20
+    #10;
+    valid    = 1;
+    side     = 0;
+    price    = 102;
+    quantity = 20;
+
+    #10;
+    valid = 0;
+
+
+    // BUY another 105 x 10
+    // Same price -> aggregate
+    #10;
+    valid    = 1;
+    side     = 0;
+    price    = 105;
+    quantity = 10;
+
+    #10;
+    valid = 0;
+
+
     // ========================================
+    // SELL LEVELS
+    // ========================================
+
     // SELL 110 x 40
-    // ========================================
     #10;
     valid    = 1;
     side     = 1;
@@ -105,23 +119,19 @@ module order_book_tb;
     #10;
     valid = 0;
 
-    // ========================================
-    // SELL 110 x 20
-    // Same price -> quantity should become 60
-    // ========================================
+
+    // SELL 108 x 25
     #10;
     valid    = 1;
     side     = 1;
-    price    = 110;
-    quantity = 20;
+    price    = 108;
+    quantity = 25;
 
     #10;
     valid = 0;
 
-    // ========================================
+
     // SELL 105 x 15
-    // Better price -> quantity becomes 15
-    // ========================================
     #10;
     valid    = 1;
     side     = 1;
@@ -130,6 +140,19 @@ module order_book_tb;
 
     #10;
     valid = 0;
+
+
+    // SELL another 108 x 5
+    // Same price -> aggregate
+    #10;
+    valid    = 1;
+    side     = 1;
+    price    = 108;
+    quantity = 5;
+
+    #10;
+    valid = 0;
+
 
     #20;
 
