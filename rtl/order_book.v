@@ -8,38 +8,54 @@ module order_book(
     input wire [31:0] quantity,
     
     output reg [31:0] best_bid,
+    output reg [31:0] best_bid_qty,
     output reg [31:0] best_ask,
+    output reg [31:0] best_ask_qty,
     output reg [31:0] spread
 );
-always @(posedge clk) begin
+
+    always @(posedge clk) begin
 
         if (rst) begin
-            best_bid <= 0;
-            best_ask <= 0;
-            spread   <= 0;
+            best_bid     <= 0;
+            best_bid_qty <= 0;
+            best_ask     <= 0;
+            best_ask_qty <= 0;
+            spread       <= 0;
         end
+
         else if (valid) begin
 
-    // BUY order
-        if (side == 0) begin
+            // BUY order
+            if (side == 0) begin
 
-            if (price > best_bid) begin
-                best_bid <= price;
+                if (price > best_bid) begin
+                    best_bid     <= price;
+                    best_bid_qty <= quantity;
+                end
+
+                else if (price == best_bid) begin
+                    best_bid_qty <= best_bid_qty + quantity;
+                end
+
             end
 
-        end
+            // SELL order
+            else begin
 
-    // SELL order
-        else begin
+                if (best_ask == 0 || price < best_ask) begin
+                    best_ask     <= price;
+                    best_ask_qty <= quantity;
+                end
 
-            if (best_ask == 0 || price < best_ask) begin
-                best_ask <= price;
+                else if (price == best_ask) begin
+                    best_ask_qty <= best_ask_qty + quantity;
+                end
+
             end
 
         end
 
     end
-
-end
 
 endmodule

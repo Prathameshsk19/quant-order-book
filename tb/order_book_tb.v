@@ -13,6 +13,8 @@ module order_book_tb;
     wire [31:0] best_bid;
     wire [31:0] best_ask;
     wire [31:0] spread;
+    wire [31:0] best_bid_qty;
+    wire [31:0] best_ask_qty;
 
     order_book dut (
         .clk(clk),
@@ -22,7 +24,9 @@ module order_book_tb;
         .price(price),
         .quantity(quantity),
         .best_bid(best_bid),
+        .best_bid_qty(best_bid_qty),
         .best_ask(best_ask),
+        .best_ask_qty(best_ask_qty),
         .spread(spread)
     );
 
@@ -64,27 +68,26 @@ module order_book_tb;
     valid = 0;
 
     // ========================================
-    // BUY 105 x 20
-    // Should update best_bid: 100 -> 105
+    // BUY 100 x 20
+    // Same price -> quantity should become 70
     // ========================================
     #10;
     valid    = 1;
     side     = 0;
-    price    = 105;
+    price    = 100;
     quantity = 20;
 
     #10;
     valid = 0;
 
     // ========================================
-    // BUY 102 x 30
-    // Should NOT update best_bid
-    // best_bid remains 105
+    // BUY 105 x 30
+    // Better price -> quantity becomes 30
     // ========================================
     #10;
     valid    = 1;
     side     = 0;
-    price    = 102;
+    price    = 105;
     quantity = 30;
 
     #10;
@@ -92,7 +95,6 @@ module order_book_tb;
 
     // ========================================
     // SELL 110 x 40
-    // First ask: 0 -> 110
     // ========================================
     #10;
     valid    = 1;
@@ -104,27 +106,26 @@ module order_book_tb;
     valid = 0;
 
     // ========================================
-    // SELL 103 x 25
-    // Should update best_ask: 110 -> 103
+    // SELL 110 x 20
+    // Same price -> quantity should become 60
     // ========================================
     #10;
     valid    = 1;
     side     = 1;
-    price    = 103;
-    quantity = 25;
+    price    = 110;
+    quantity = 20;
 
     #10;
     valid = 0;
 
     // ========================================
-    // SELL 108 x 15
-    // Should NOT update best_ask
-    // best_ask remains 103
+    // SELL 105 x 15
+    // Better price -> quantity becomes 15
     // ========================================
     #10;
     valid    = 1;
     side     = 1;
-    price    = 108;
+    price    = 105;
     quantity = 15;
 
     #10;
