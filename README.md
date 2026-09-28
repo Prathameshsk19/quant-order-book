@@ -44,48 +44,65 @@ The long-term objective is to build an FPGA-based order processing pipeline capa
 
 ### V2 — Bid/Ask Handling
 
-- [ ] SELL order detection
-- [ ] Best ask tracking
-- [ ] Spread calculation
-- [ ] Multiple orders
-- [ ] Price comparison
+- [x] SELL order detection
+- [x] Best ask tracking
+- [x] Spread calculation
+- [x] Multiple orders
+- [x] Price comparison
 
-### V3 — Multi-Level Order Book
+### V3 — Quantity Handling
 
-- [ ] Multiple bid price levels
-- [ ] Multiple ask price levels
-- [ ] Order quantities
-- [ ] Price-level aggregation
-- [ ] Order cancellation
+- [x] Order quantities
+- [x] Quantity aggregation at the same price
+- [x] Best bid quantity
+- [x] Best ask quantity
+- [x] Testbench verification
 
-### V4 — Matching Engine
+### V4 — Multi-Level Order Book
+
+- [x] Multiple bid price levels
+- [x] Multiple ask price levels
+- [x] Price-level aggregation
+- [x] Best bid search
+- [x] Best ask search
+- [x] Spread calculation across multiple levels
+
+### V5 — Order Book Verification
+
+- [x] Directed test cases
+- [x] Multiple price levels
+- [x] Quantity aggregation tests
+- [x] GTKWave waveform verification
+
+### V6 — Order Matching Engine
 
 - [ ] BUY/SELL matching
-- [ ] Price-time priority
+- [ ] Trade generation
 - [ ] Partial fills
 - [ ] Remaining quantity tracking
-- [ ] Trade generation
+- [ ] Best-price matching
+- [ ] Trade output signals
 
-### V5 — Verification
+### V7 — Verification & Robustness
 
 - [ ] Self-checking testbench
-- [ ] Directed tests
+- [ ] Directed edge-case tests
 - [ ] Randomized tests
 - [ ] Assertions
 - [ ] Functional coverage
 
-### V6 — FPGA Optimization
+### V8 — FPGA Implementation & Optimization
 
 - [ ] Synthesis
 - [ ] Timing analysis
 - [ ] Critical-path analysis
 - [ ] Pipeline optimization
 - [ ] Parallel processing
-- [ ] Resource optimization
+- [ ] Resource utilization analysis
 - [ ] Fmax measurement
 - [ ] Cycle-level latency measurement
 
-### V7 — Market Data Pipeline
+### V9 — Market Data Pipeline
 
 - [ ] Market-data message parser
 - [ ] Feed handler
@@ -93,7 +110,7 @@ The long-term objective is to build an FPGA-based order processing pipeline capa
 - [ ] Binary protocol processing
 - [ ] UDP interface
 
-### V8 — Low-Latency Trading Architecture
+### V10 — Low-Latency Trading Architecture
 
 - [ ] FPGA network interface
 - [ ] Packet parsing
@@ -102,6 +119,26 @@ The long-term objective is to build an FPGA-based order processing pipeline capa
 - [ ] Order generation
 - [ ] Hardware timestamping
 - [ ] End-to-end latency measurement
+
+---
+---
+
+## 📈 Current Development Status
+
+The project currently contains a functional multi-level order book supporting:
+
+- BUY and SELL orders
+- Four price levels per side
+- Price-level quantity aggregation
+- Best bid / best ask detection
+- Spread calculation
+- Verilog RTL implementation
+- Icarus Verilog simulation
+- GTKWave waveform verification
+
+The next development stage is the implementation of the **order matching engine**, including trade generation and partial fills.
+
+The architecture will initially prioritize correctness and deterministic behavior before moving toward FPGA synthesis, timing optimization, pipelining, and low-latency optimization.
 
 ---
 
