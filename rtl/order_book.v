@@ -13,7 +13,12 @@ module order_book(
     output reg [31:0] best_ask,
     output reg [31:0] best_ask_qty,
 
-    output reg [31:0] spread
+    output reg [31:0] spread,
+
+    // V7 trade outputs
+    output reg        trade_valid,
+    output reg [31:0] trade_price,
+    output reg [31:0] trade_qty
 );
 
     // ----------------------------------------
@@ -29,103 +34,208 @@ module order_book(
     integer i;
 
     // ----------------------------------------
-    // Order insertion / quantity aggregation
+    // Best-price information
+    // ----------------------------------------
+
+    integer j;
+
+    reg [31:0] temp_best_bid;
+    reg [31:0] temp_best_bid_qty;
+
+    reg [31:0] temp_best_ask;
+    reg [31:0] temp_best_ask_qty;
+
+    integer best_ask_index;
+
+    // ----------------------------------------
+    // Order processing
     // ----------------------------------------
 
     always @(posedge clk) begin
 
         if (rst) begin
 
+            // Clear order book
             for (i = 0; i < 4; i = i + 1) begin
+
                 bid_price[i] <= 0;
                 bid_qty[i]   <= 0;
 
                 ask_price[i] <= 0;
                 ask_qty[i]   <= 0;
+
             end
+
+            // Clear trade outputs
+            trade_valid <= 0;
+            trade_price <= 0;
+            trade_qty   <= 0;
 
         end
 
-        else if (valid) begin
+        else begin
 
-            // =================================
-            // BUY
-            // =================================
-            if (side == 0) begin
+            // Trade outputs are normally inactive
+            trade_valid <= 0;
+            trade_price <= 0;
+            trade_qty   <= 0;
 
-                // Same price level?
-                if (bid_price[0] == price)
-                    bid_qty[0] <= bid_qty[0] + quantity;
+            if (valid && (quantity != 0)) begin
 
-                else if (bid_price[1] == price)
-                    bid_qty[1] <= bid_qty[1] + quantity;
+                // ========================================
+                // BUY ORDER
+                // ========================================
 
-                else if (bid_price[2] == price)
-                    bid_qty[2] <= bid_qty[2] + quantity;
+                if (side == 0) begin
 
-                else if (bid_price[3] == price)
-                    bid_qty[3] <= bid_qty[3] + quantity;
+                    // ------------------------------------
+                    // Does BUY cross the best ASK?
+                    // ------------------------------------
 
-                // Otherwise find empty slot
-                else if (bid_price[0] == 0) begin
-                    bid_price[0] <= price;
-                    bid_qty[0]   <= quantity;
+                    if ((best_ask != 0) &&
+                        (price >= best_ask)) begin
+
+                        // Trade occurs
+                        trade_valid <= 1;
+                        trade_price <= best_ask;
+
+                        // --------------------------------
+                        // BUY smaller than ASK
+                        // --------------------------------
+
+                        if (quantity < best_ask_qty) begin
+
+                            trade_qty <= quantity;
+
+                            ask_qty[best_ask_index] <=
+                                best_ask_qty - quantity;
+
+                        end
+
+                        // --------------------------------
+                        // BUY completely consumes ASK
+                        // --------------------------------
+
+                        else begin
+
+                            trade_qty <= best_ask_qty;
+
+                            ask_price[best_ask_index] <= 0;
+                            ask_qty[best_ask_index]   <= 0;
+
+                        end
+
+                    end
+
+                    // ------------------------------------
+                    // BUY does NOT cross ASK
+                    // Add to BID book
+                    // ------------------------------------
+
+                    else begin
+
+                        // Existing price level
+                        if (bid_price[0] == price)
+                            bid_qty[0] <= bid_qty[0] + quantity;
+
+                        else if (bid_price[1] == price)
+                            bid_qty[1] <= bid_qty[1] + quantity;
+
+                        else if (bid_price[2] == price)
+                            bid_qty[2] <= bid_qty[2] + quantity;
+
+                        else if (bid_price[3] == price)
+                            bid_qty[3] <= bid_qty[3] + quantity;
+
+                        // Empty price level
+                        else if (bid_price[0] == 0) begin
+
+                            bid_price[0] <= price;
+                            bid_qty[0]   <= quantity;
+
+                        end
+
+                        else if (bid_price[1] == 0) begin
+
+                            bid_price[1] <= price;
+                            bid_qty[1]   <= quantity;
+
+                        end
+
+                        else if (bid_price[2] == 0) begin
+
+                            bid_price[2] <= price;
+                            bid_qty[2]   <= quantity;
+
+                        end
+
+                        else if (bid_price[3] == 0) begin
+
+                            bid_price[3] <= price;
+                            bid_qty[3]   <= quantity;
+
+                        end
+
+                    end
+
                 end
 
-                else if (bid_price[1] == 0) begin
-                    bid_price[1] <= price;
-                    bid_qty[1]   <= quantity;
-                end
+                // ========================================
+                // SELL ORDER
+                // ========================================
 
-                else if (bid_price[2] == 0) begin
-                    bid_price[2] <= price;
-                    bid_qty[2]   <= quantity;
-                end
+                else begin
 
-                else if (bid_price[3] == 0) begin
-                    bid_price[3] <= price;
-                    bid_qty[3]   <= quantity;
-                end
+                    // ------------------------------------
+                    // SELL does not match yet
+                    //
+                    // For now, V7 only implements
+                    // BUY -> ASK matching.
+                    // SELL continues to enter ASK book.
+                    // ------------------------------------
 
-            end
+                    // Existing price level
+                    if (ask_price[0] == price)
+                        ask_qty[0] <= ask_qty[0] + quantity;
 
-            // =================================
-            // SELL
-            // =================================
-            else begin
+                    else if (ask_price[1] == price)
+                        ask_qty[1] <= ask_qty[1] + quantity;
 
-                // Same price level?
-                if (ask_price[0] == price)
-                    ask_qty[0] <= ask_qty[0] + quantity;
+                    else if (ask_price[2] == price)
+                        ask_qty[2] <= ask_qty[2] + quantity;
 
-                else if (ask_price[1] == price)
-                    ask_qty[1] <= ask_qty[1] + quantity;
+                    else if (ask_price[3] == price)
+                        ask_qty[3] <= ask_qty[3] + quantity;
 
-                else if (ask_price[2] == price)
-                    ask_qty[2] <= ask_qty[2] + quantity;
+                    // Empty price level
+                    else if (ask_price[0] == 0) begin
 
-                else if (ask_price[3] == price)
-                    ask_qty[3] <= ask_qty[3] + quantity;
+                        ask_price[0] <= price;
+                        ask_qty[0]   <= quantity;
 
-                // Otherwise find empty slot
-                else if (ask_price[0] == 0) begin
-                    ask_price[0] <= price;
-                    ask_qty[0]   <= quantity;
-                end
+                    end
 
-                else if (ask_price[1] == 0) begin
-                    ask_price[1] <= price;
-                    ask_qty[1]   <= quantity;
-                end
+                    else if (ask_price[1] == 0) begin
 
-                else if (ask_price[2] == 0) begin
-                    ask_price[2] <= price;
-                    ask_qty[2]   <= quantity;
-                end
+                        ask_price[1] <= price;
+                        ask_qty[1]   <= quantity;
 
-                else if (ask_price[3] == 0) begin
-                    ask_price[3] <= price;
-                    ask_qty[3]   <= quantity;
+                    end
+
+                    else if (ask_price[2] == 0) begin
+
+                        ask_price[2] <= price;
+                        ask_qty[2]   <= quantity;
+
+                    end
+
+                    else if (ask_price[3] == 0) begin
+
+                        ask_price[3] <= price;
+                        ask_qty[3]   <= quantity;
+
+                    end
+
                 end
 
             end
@@ -139,14 +249,6 @@ module order_book(
     // Find best bid / best ask
     // ----------------------------------------
 
-    integer j;
-
-    reg [31:0] temp_best_bid;
-    reg [31:0] temp_best_bid_qty;
-
-    reg [31:0] temp_best_ask;
-    reg [31:0] temp_best_ask_qty;
-
     always @(*) begin
 
         // Defaults
@@ -156,6 +258,8 @@ module order_book(
         temp_best_ask     = 0;
         temp_best_ask_qty = 0;
 
+        best_ask_index    = -1;
+
         // ------------------------------------
         // Find highest BUY price
         // ------------------------------------
@@ -163,8 +267,10 @@ module order_book(
         for (j = 0; j < 4; j = j + 1) begin
 
             if (bid_price[j] > temp_best_bid) begin
+
                 temp_best_bid     = bid_price[j];
                 temp_best_bid_qty = bid_qty[j];
+
             end
 
         end
@@ -183,14 +289,26 @@ module order_book(
                     temp_best_ask     = ask_price[j];
                     temp_best_ask_qty = ask_qty[j];
 
+                    // Remember which array entry
+                    // contains the best ASK
+                    best_ask_index = j;
+
                 end
 
             end
 
         end
 
+        // ------------------------------------
+        // Output best bid
+        // ------------------------------------
+
         best_bid     = temp_best_bid;
         best_bid_qty = temp_best_bid_qty;
+
+        // ------------------------------------
+        // Output best ask
+        // ------------------------------------
 
         best_ask     = temp_best_ask;
         best_ask_qty = temp_best_ask_qty;
@@ -199,10 +317,18 @@ module order_book(
         // Spread
         // ------------------------------------
 
-        if ((best_bid != 0) && (best_ask != 0))
+        if ((best_bid != 0) &&
+            (best_ask != 0)) begin
+
             spread = best_ask - best_bid;
-        else
+
+        end
+
+        else begin
+
             spread = 0;
+
+        end
 
     end
 
